@@ -2,12 +2,10 @@ from unittest import expectedFailure
 from flask import Flask, jsonify, render_template, request, redirect, session
 from flask_login import LoginManager, current_user, login_user, login_required, UserMixin, logout_user 
 import requests
-
 from flask_sqlalchemy  import SQLAlchemy
-
 import os
-basedir = os.path.abspath(os.path.dirname(__file__))
 
+basedir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'app.db')
 app.secret_key = "super secret key"
@@ -23,7 +21,6 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(30),nullable=False ) 
     email = db.Column(db.String(30),nullable=False )
       
-#nullable=False      
 #    def __repr__(self):
 #       return '<User %r>' % self.username
 
@@ -88,11 +85,9 @@ def login():
         try:
             session.pop(current_user.username, None)
         except:
-            None
-        user = User.query.filter_by(email=inputEmail).first() 
+        user = User.query.filter_by(email=inputEmail).first()
         if user:
             login_user(user)
-            txt = 'авторизация прошла успешна '+str(user.username)
             next = request.args.get('next')
             return redirect(next)
         else:
