@@ -20,9 +20,10 @@ db = SQLAlchemy(app)
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(30))
-    email = db.Column(db.String(30))
+    username = db.Column(db.String(30),nullable=False ) 
+    email = db.Column(db.String(30),nullable=False )
       
+#nullable=False      
 #    def __repr__(self):
 #       return '<User %r>' % self.username
 
@@ -123,12 +124,41 @@ def form_api_post():
     return jsonify(json_out), 200
 
 
-
-@app.route('/admin') 
+@app.route('/admin',methods=['GET','POST']) 
 @login_required
 def admin():
+    name =''
+    email =''
+    if current_user.username != 'admin':
+        return redirect('/')
+
+    if request.method == 'POST' :
+        name = request.form.get('name')
+        email = request.form.get('email')
+        try:
+            user = User(username=name,email=email)
+            db.session.add(user)
+            db.session.commit()
+        except:
+            return('При добавлении пользователя произошла ошибка')
     users = User.query.all()
-    return render_template('admin.html',users=users)
+    return render_template('admin.html',users=users,name=name,email=email)
+
+@app.route('/admin/deleteUser/<id>',methods=['POST']) 
+@login_required
+def admin_del(id):
+    if current_user.username != 'admin':
+        return redirect('/')
+    if request.method == 'POST' :
+        try:
+            user = User.query.get(int(id))
+            db.session.delete(user)
+            db.session.commit()
+        except:
+            return('При удалении пользователя произошла ошибка')
+    users = User.query.all()
+    return redirect('/admin')
+
 
 ##############################################
 if __name__ == "__main__":
