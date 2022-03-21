@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Главная страница{% endblock %}
+
+{% block body %}
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+
+<script type="text/javascript">
+	function call(history) {
+		$.ajax({
+			type: "POST",
+			url: "/form_api_js",
+			data: $('form').serialize(),
+			type: 'POST',
+			success: function(response) {
+				var json = jQuery.parseJSON(response)
+				$('#result_form').html(json.txt)
+			},
+			error: function(error) {
+				alert('Ошибка выполнения');
+			},
+			beforeSend: function(){
+			//создаем div
+		
+			},
+			complete: function() {
+        	// деактивация индикатора
+			
+    		}	
+		});
+	}
+</script>
+
+
+
+<h1>Пример POST запроса</h1>
+
+
+
+<H3>Пример формы. Отравка POST запроса</H3>
+<H1>Введен текст: 
+<font color=red>
+    <div id="result_form"></div> 
+</font></H1>
+
+
+<form method="post" id="form" action="" >
+    <input type="text" name="name" placeholder="NAME" /><br>
+    <p><input name="run" class="btn btn-success" type="button" value="Выполнить" onclick="call();"></br>
+</form>
+
+{% endblock %}
