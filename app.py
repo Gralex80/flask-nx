@@ -4,8 +4,8 @@ from flask_sqlalchemy  import SQLAlchemy
 import requests, os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-#app = Flask(__name__)
-app = Flask(__name__, static_folder="static")
+app = Flask(__name__)
+#app = Flask(__name__, static_folder="static")
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'app.db')
 app.secret_key = "super secret key"
 
@@ -17,10 +17,18 @@ db = SQLAlchemy(app)
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(30),nullable=False ) 
-    email = db.Column(db.String(30),nullable=False )     
+    username = db.Column(db.String(30),nullable=False, unique=True ) 
+    email = db.Column(db.String(30),nullable=False,  unique=True )     
 #    def __repr__(self):
 #       return '<User %r>' % self.username
+
+def create_db():
+    db.create_all()
+    user = User(id=1,username='admin',email='admin@mail.ru')
+    guest = User(id=2,username='guest',email='vova@gmail.com')
+    db.session.add(user)
+    db.session.add(guest)
+    db.session.commit()
 
 @login_manager.user_loader
 def load_user(id):
