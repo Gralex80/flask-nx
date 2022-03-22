@@ -1,12 +1,11 @@
-from unittest import expectedFailure
 from flask import Flask, jsonify, render_template, request, redirect, session
 from flask_login import LoginManager, current_user, login_user, login_required, UserMixin, logout_user 
-import requests
 from flask_sqlalchemy  import SQLAlchemy
-import os
+import requests, os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-app = Flask(__name__)
+#app = Flask(__name__)
+app = Flask(__name__, static_folder="static")
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'app.db')
 app.secret_key = "super secret key"
 
@@ -19,15 +18,13 @@ db = SQLAlchemy(app)
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(30),nullable=False ) 
-    email = db.Column(db.String(30),nullable=False )
-      
+    email = db.Column(db.String(30),nullable=False )     
 #    def __repr__(self):
 #       return '<User %r>' % self.username
 
 @login_manager.user_loader
 def load_user(id):
     return User.query.get(int(id)) 
-
 
 @app.route("/hello")
 def hello_world():
@@ -85,7 +82,7 @@ def login():
         try:
             session.pop(current_user.username, None)
         except:
-        user = User.query.filter_by(email=inputEmail).first()
+            user = User.query.filter_by(email=inputEmail).first()
         if user:
             login_user(user)
             next = request.args.get('next')
@@ -94,7 +91,6 @@ def login():
             txt = 'доступ закрыт: '+str(user)
     return render_template('login.html',txt=txt)
 
-
 @app.route('/form',methods=['GET','POST']) 
 @login_required
 def form():
@@ -102,22 +98,6 @@ def form():
     if request.method == 'POST' :
         text = request.form.get('input_text')
     return render_template('form.html',text=text)
-
-
-@app.route('/form_api') 
-#@login_required
-def form_api():
-    return render_template('form_ajax.html')
-
-@app.route('/form_api_js',methods=['POST']) 
-@login_required
-def form_api_post():
-    text=''
-    if request.method == 'POST' :
-        text = request.form.get('input_text')
-        json_out=[{'txt':text}]
-    return jsonify(json_out), 200
-
 
 @app.route('/admin',methods=['GET','POST']) 
 @login_required
@@ -153,7 +133,6 @@ def admin_del(id):
             return('При удалении пользователя произошла ошибка')
     users = User.query.all()
     return redirect('/admin')
-
 
 ##############################################
 if __name__ == "__main__":
